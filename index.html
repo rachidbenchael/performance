@@ -821,7 +821,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
     </div>
 
     <div class="footer">
-      Dashboard Performance Commerciale &nbsp;·&nbsp; Developped By RACHID BENCHALE &nbsp;·&nbsp;
+      Dashboard Performance Commerciale &nbsp;·&nbsp; Developped By RACHID BENCHALEH  &nbsp;·&nbsp;
       <span id="lastUpdate">—</span>
     </div>
 
@@ -835,7 +835,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 // ================================================================
 const CONFIG = {
   // Colle ici l'URL CSV de ta feuille "Objectifs" publiée depuis Google Sheets
- urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
+  urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
 
   // URL CSV de ta feuille "Réalisations"
   urlRealisations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=116592735&single=true&output=csv",
@@ -1088,7 +1088,7 @@ function updateKPIs(data) {
 
 
 // ================================================================
-// 📈  TAUX DE RÉALISATION PAR COMMERCIALE
+// 📈  TAUX PAR CATÉGORIE PAR COMMERCIALE
 // ================================================================
 function updatePodium(data) {
   const container = el("podiumGrid");
@@ -1103,56 +1103,47 @@ function updatePodium(data) {
     ["#06b6d4","rgba(6,182,212,0.15)"],
   ];
 
+  const cats = [
+    { label:"B1", key:"tauxB1", emoji:"🍺" },
+    { label:"B2", key:"tauxB2", emoji:"🍺" },
+    { label:"B3", key:"tauxB3", emoji:"🍺" },
+    { label:"V1", key:"tauxV1", emoji:"🍷" },
+    { label:"V2", key:"tauxV2", emoji:"🍷" },
+  ];
+
   data.forEach((d, i) => {
     const [ac, ab] = avatarColors[i % avatarColors.length];
-    const initiale  = d.Commerciale.charAt(0).toUpperCase();
-    const clsG = colorClass(d.tauxGlobal);
-    const clsB = colorClass(d.tauxBiere);
-    const clsV = colorClass(d.tauxVin);
-    const statutCls = d.statut==="top"?"top":d.statut==="medium"?"medium":"low";
+    const initiale    = d.Commerciale.charAt(0).toUpperCase();
+    const statutCls   = d.statut==="top"?"top":d.statut==="medium"?"medium":"low";
     const statutLabel = d.statut==="top"?"🔥 Top":d.statut==="medium"?"👍 Moyen":"⚠️ Faible";
+
+    const catRows = cats.map(c => {
+      const t     = d[c.key];
+      const color = t >= 100 ? "#10b981" : t >= 80 ? "#f97316" : "#ef4444";
+      const w     = Math.min(t || 0, 100);
+      return `
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:0.72rem;font-weight:700;color:var(--text2);width:40px;flex-shrink:0">${c.emoji} ${c.label}</span>
+          <div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden">
+            <div style="height:100%;width:${w}%;background:${color};border-radius:99px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1)"></div>
+          </div>
+          <span style="font-family:'Space Grotesk',sans-serif;font-size:0.82rem;font-weight:700;color:${color};width:42px;text-align:right;flex-shrink:0">${t !== null ? t+"%" : "—"}</span>
+        </div>`;
+    }).join("");
 
     const card = document.createElement("div");
     card.className = "podium-card";
-    card.style.animationDelay = (i * 0.06)+"s";
-    card.style.flexDirection  = "column";
-    card.style.alignItems     = "stretch";
-    card.style.gap            = "12px";
+    card.style.cssText = "flex-direction:column;align-items:stretch;gap:14px;animation-delay:"+(i*0.06)+"s";
     card.innerHTML = `
-      <!-- En-tête : avatar + nom + statut -->
       <div style="display:flex;align-items:center;gap:10px">
-        <div class="comm-avatar" style="background:${ab};color:${ac};width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:0.85rem;flex-shrink:0">${initiale}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.Commerciale}</div>
-        </div>
+        <div style="width:34px;height:34px;border-radius:8px;background:${ab};color:${ac};display:grid;place-items:center;font-weight:700;font-size:0.85rem;flex-shrink:0">${initiale}</div>
+        <div style="flex:1;min-width:0;font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.Commerciale}</div>
         <span class="perf-tag ${statutCls}">${statutLabel}</span>
       </div>
-
-      <!-- Taux Global (grand) -->
-      <div style="text-align:center;padding:6px 0 2px">
-        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);font-weight:600;margin-bottom:4px">Taux Global</div>
-        <div class="podium-score-val ${clsG}" style="font-size:2rem">${d.tauxGlobal !== null ? d.tauxGlobal+"%" : "—"}</div>
-      </div>
-
-      <!-- Barres Bière et Vin -->
-      <div style="display:flex;flex-direction:column;gap:7px">
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text2);margin-bottom:4px">
-            <span>🍺 Bière</span><span class="${clsB}" style="font-weight:700">${d.tauxBiere !== null ? d.tauxBiere+"%" : "—"}</span>
-          </div>
-          <div class="taux-bar-bg" style="height:6px">
-            <div class="taux-bar-fill" style="width:${Math.min(d.tauxBiere||0,100)}%;background:${d.tauxBiere>=100?'var(--green)':d.tauxBiere>=80?'var(--orange)':'var(--red)'}"></div>
-          </div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text2);margin-bottom:4px">
-            <span>🍷 Vin</span><span class="${clsV}" style="font-weight:700">${d.tauxVin !== null ? d.tauxVin+"%" : "—"}</span>
-          </div>
-          <div class="taux-bar-bg" style="height:6px">
-            <div class="taux-bar-fill" style="width:${Math.min(d.tauxVin||0,100)}%;background:${d.tauxVin>=100?'var(--green)':d.tauxVin>=80?'var(--orange)':'var(--red)'}"></div>
-          </div>
-        </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        ${catRows}
       </div>`;
+
     container.appendChild(card);
   });
 }
