@@ -1,597 +1,841 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard Performance Commerciale</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Performance Commerciale — Dashboard</title>
 
-  <!-- ===================================================
-       BIBLIOTHÈQUES EXTERNES
-       Chart.js : pour les graphiques (gratuit, sans backend)
-       Google Fonts : pour une belle typographie
-  ==================================================== -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<!-- Chart.js pour les graphiques -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Police moderne et professionnelle -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet"/>
 
-  <style>
-    /* ===================================================
-       VARIABLES CSS — Palette de couleurs centralisée
-       Modifie ici pour changer tout le thème d'un coup !
-    ==================================================== */
-    :root {
-      --bg:         #0d0f1a;
-      --surface:    #161927;
-      --card:       #1e2235;
-      --border:     #2a2f4a;
-      --accent:     #6c63ff;
-      --accent2:    #00e5c0;
-      --text:       #e8eaf6;
-      --muted:      #7b82a8;
-      --green:      #00e5c0;
-      --orange:     #ffaa00;
-      --red:        #ff4d6d;
-      --font-head:  'Syne', sans-serif;
-      --font-body:  'DM Sans', sans-serif;
-      --radius:     14px;
-      --shadow:     0 8px 32px rgba(0,0,0,0.4);
-    }
+<style>
+/* ================================================================
+   VARIABLES — Modifie ici pour changer toute la palette de couleurs
+================================================================ */
+:root {
+  --bg:           #070b14;
+  --bg2:          #0d1220;
+  --surface:      #111827;
+  --card:         #141c2e;
+  --card2:        #1a2438;
+  --border:       rgba(255,255,255,0.07);
+  --border2:      rgba(255,255,255,0.12);
+  --accent:       #3b82f6;
+  --accent-glow:  rgba(59,130,246,0.25);
+  --gold:         #f59e0b;
+  --gold-glow:    rgba(245,158,11,0.2);
+  --green:        #10b981;
+  --green-glow:   rgba(16,185,129,0.15);
+  --orange:       #f97316;
+  --orange-glow:  rgba(249,115,22,0.15);
+  --red:          #ef4444;
+  --red-glow:     rgba(239,68,68,0.15);
+  --text:         #f1f5f9;
+  --text2:        #94a3b8;
+  --text3:        #475569;
+  --font:         'Plus Jakarta Sans', sans-serif;
+  --font2:        'Space Grotesk', sans-serif;
+  --r:            16px;
+  --r-sm:         10px;
+}
 
-    /* ===================================================
-       RESET & BASE
-    ==================================================== */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ================================================================
+   RESET & BASE
+================================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-      font-weight: 400;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    /* Fond animé — petites étoiles fixes */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 20% 30%, rgba(108,99,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 80% 10%, rgba(0,229,192,0.2) 0%, transparent 100%),
-        radial-gradient(600px 600px at 10% 80%, rgba(108,99,255,0.05) 0%, transparent 100%),
-        radial-gradient(400px 400px at 90% 60%, rgba(0,229,192,0.04) 0%, transparent 100%);
-      pointer-events: none;
-      z-index: 0;
-    }
+/* Fond texturé avec grille subtile */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
 
-    /* ===================================================
-       STRUCTURE PRINCIPALE
-    ==================================================== */
-    .wrapper {
-      position: relative;
-      z-index: 1;
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 32px 24px 60px;
-    }
+/* Halos de lumière d'ambiance */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 0%, rgba(59,130,246,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 80% 100%, rgba(16,185,129,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
 
-    /* ===================================================
-       EN-TÊTE
-    ==================================================== */
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 36px;
-    }
+/* ================================================================
+   LAYOUT PRINCIPAL
+================================================================ */
+.app { position: relative; z-index: 1; }
 
-    .header-left h1 {
-      font-family: var(--font-head);
-      font-size: clamp(1.4rem, 3vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      line-height: 1.1;
-    }
+.wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 28px 80px;
+}
 
-    .header-left h1 span { color: var(--accent2); }
+/* ================================================================
+   HEADER PRINCIPAL
+================================================================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,11,20,0.8);
+  backdrop-filter: blur(16px);
+  position: sticky; top: 0; z-index: 100;
+  margin-bottom: 40px;
+}
 
-    .header-left p {
-      color: var(--muted);
-      font-size: 0.85rem;
-      margin-top: 4px;
-    }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-    .logo-badge {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 50px;
-      padding: 8px 18px;
-      font-family: var(--font-head);
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: var(--accent2);
-    }
+.brand-icon {
+  width: 36px; height: 36px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: grid; place-items: center;
+  font-size: 1rem;
+}
 
-    .logo-badge::before {
-      content: '●';
-      font-size: 0.5rem;
-      animation: blink 1.5s ease-in-out infinite;
-    }
+.brand-name {
+  font-family: var(--font2);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
 
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.2; }
-    }
+.brand-sub {
+  font-size: 0.72rem;
+  color: var(--text2);
+  font-weight: 400;
+}
 
-    /* ===================================================
-       BARRE DE CONTRÔLES (filtre + bouton refresh)
-    ==================================================== */
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    .controls label {
-      font-size: 0.82rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
+/* Indicateur live */
+.live-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+}
 
-    select#monthFilter {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 9px 14px;
-      font-family: var(--font-body);
-      font-size: 0.9rem;
-      cursor: pointer;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+.live-dot::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
 
-    select#monthFilter:hover { border-color: var(--accent); }
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.8); }
+}
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 9px 18px;
-      font-family: var(--font-body);
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-    }
 
-    .btn:hover   { background: #7c74ff; transform: translateY(-1px); }
-    .btn:active  { transform: translateY(0); }
-    .btn.outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .btn.outline:hover { border-color: var(--accent); color: var(--accent); background: transparent; }
 
-    /* ===================================================
-       BANNIÈRE D'ÉTAT (chargement / erreur / instructions)
-    ==================================================== */
-    #statusBanner {
-      display: none;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
-      margin-bottom: 24px;
-      font-size: 0.9rem;
-      line-height: 1.7;
-    }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--r-sm);
+  border: none;
+  font-family: var(--font);
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
-    #statusBanner.loading { border-color: var(--accent); }
-    #statusBanner.error   { border-color: var(--red); }
-    #statusBanner.info    { border-color: var(--accent2); }
-    #statusBanner .banner-title {
-      font-family: var(--font-head);
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 8px;
-    }
-    #statusBanner.error .banner-title   { color: var(--red); }
-    #statusBanner.loading .banner-title { color: var(--accent); }
-    #statusBanner.info .banner-title    { color: var(--accent2); }
-    #statusBanner code {
-      background: rgba(255,255,255,0.06);
-      border-radius: 4px;
-      padding: 2px 6px;
-      font-size: 0.82rem;
-      color: var(--accent2);
-    }
-    #statusBanner ol, #statusBanner ul { padding-left: 20px; }
-    #statusBanner li { margin-bottom: 4px; }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
 
-    /* ===================================================
-       KPI CARDS en haut
-    ==================================================== */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
+/* ================================================================
+   BANNIÈRE D'ÉTAT
+================================================================ */
+#statusBanner {
+  display: none;
+  border-radius: var(--r);
+  padding: 18px 22px;
+  margin-bottom: 28px;
+  font-size: 0.87rem;
+  line-height: 1.75;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+#statusBanner.info    { border-color: rgba(59,130,246,0.4); }
+#statusBanner.error   { border-color: rgba(239,68,68,0.4); }
+#statusBanner.loading { border-color: rgba(59,130,246,0.3); }
+.banner-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  font-family: var(--font2);
+}
+#statusBanner.info .banner-title    { color: var(--accent); }
+#statusBanner.error .banner-title   { color: var(--red); }
+#statusBanner.loading .banner-title { color: var(--text2); }
+#statusBanner code {
+  background: rgba(255,255,255,0.07);
+  padding: 2px 7px; border-radius: 4px;
+  font-size: 0.8rem; color: var(--accent);
+}
+#statusBanner ol, #statusBanner ul { padding-left: 18px; }
+#statusBanner li { margin-bottom: 4px; }
 
-    .kpi-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px 20px;
-      position: relative;
-      overflow: hidden;
-      animation: fadeUp 0.4s ease both;
-    }
+/* ================================================================
+   SCORE AGENCE — HERO SECTION
+================================================================ */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
 
-    .kpi-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--accent);
-    }
+@media (max-width: 1100px) { .hero { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px)  { .hero { grid-template-columns: 1fr; } }
 
-    .kpi-card:nth-child(2)::after { background: var(--accent2); }
-    .kpi-card:nth-child(3)::after { background: var(--orange); }
-    .kpi-card:nth-child(4)::after { background: var(--green); }
+/* Grande carte score agence */
+.score-hero-card {
+  grid-column: span 1;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+  animation: slideUp 0.5s ease both;
+}
 
-    .kpi-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
+/* Halo lumineux derrière le chiffre principal */
+.score-hero-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: var(--accent-glow);
+  filter: blur(40px);
+  pointer-events: none;
+}
 
-    .kpi-value {
-      font-family: var(--font-head);
-      font-size: 2rem;
-      font-weight: 800;
-      line-height: 1;
-    }
+.score-hero-card.gold-card::before { background: var(--gold-glow); }
 
-    .kpi-sub {
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
+/* Ligne colorée en haut de chaque carte */
+.score-hero-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
 
-    /* ===================================================
-       GRILLE GRAPHIQUE + TABLEAU
-    ==================================================== */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 24px;
-    }
+.score-hero-card.gold-card::after {
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
 
-    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+.kpi-label-top {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      animation: fadeUp 0.5s ease both;
-    }
+.kpi-label-top .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
 
-    .panel-title {
-      font-family: var(--font-head);
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+.gold-card .kpi-label-top .dot { background: var(--gold); }
 
-    .panel-title span {
-      font-size: 0.75rem;
-      background: rgba(108,99,255,0.15);
-      color: var(--accent);
-      border-radius: 4px;
-      padding: 2px 8px;
-      font-weight: 600;
-    }
+.kpi-big-val {
+  font-family: var(--font2);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 6px;
+}
 
-    .chart-wrap { position: relative; height: 280px; }
+.kpi-big-val.blue  { color: var(--accent); }
+.kpi-big-val.gold  { color: var(--gold); }
+.kpi-big-val.green { color: var(--green); }
+.kpi-big-val.red   { color: var(--red); }
 
-    /* ===================================================
-       TABLEAU DES PERFORMANCES
-    ==================================================== */
-    .table-panel {
-      grid-column: 1 / -1;  /* Prend toute la largeur */
-    }
+.kpi-desc {
+  font-size: 0.78rem;
+  color: var(--text3);
+  font-weight: 400;
+}
 
-    .table-scroll { overflow-x: auto; }
+/* Jauge circulaire du score agence */
+.gauge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
+.gauge-ring {
+  position: relative;
+  width: 80px; height: 80px;
+  flex-shrink: 0;
+}
 
-    thead tr {
-      background: rgba(108,99,255,0.08);
-      border-bottom: 1px solid var(--border);
-    }
+.gauge-ring svg {
+  transform: rotate(-90deg);
+  width: 80px; height: 80px;
+}
 
-    th {
-      text-align: left;
-      padding: 12px 14px;
-      font-family: var(--font-head);
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--muted);
-      white-space: nowrap;
-    }
+.gauge-ring circle {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
 
-    td {
-      padding: 13px 14px;
-      border-bottom: 1px solid rgba(42,47,74,0.6);
-      vertical-align: middle;
-    }
+.gauge-bg { stroke: rgba(255,255,255,0.06); }
+.gauge-fill {
+  stroke: var(--accent);
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1);
+}
 
-    tr:last-child td { border-bottom: none; }
-    tbody tr { transition: background 0.15s; }
-    tbody tr:hover { background: rgba(255,255,255,0.03); }
+.gauge-label-inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font2);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text);
+}
 
-    .cell-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
+/* ================================================================
+   PODIUM DES TOP PERFORMERS
+================================================================ */
+.podium-section {
+  margin-bottom: 28px;
+}
 
-    /* ===================================================
-       BARRE DE PROGRESSION DANS LES CELLULES
-    ==================================================== */
-    .progress-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 130px;
-    }
+.section-title {
+  font-family: var(--font2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text2);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    .progress-bar-bg {
-      flex: 1;
-      height: 6px;
-      background: rgba(255,255,255,0.07);
-      border-radius: 99px;
-      overflow: hidden;
-    }
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
 
-    .progress-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
-    }
+.podium-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
 
-    /* Couleurs selon le taux d'atteinte */
-    .good    { background: var(--green);  }
-    .medium  { background: var(--orange); }
-    .bad     { background: var(--red);    }
+.podium-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideUp 0.5s ease both;
+  transition: border-color 0.2s, transform 0.2s;
+}
 
-    /* Badge texte coloré */
-    .badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
+.podium-card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+}
 
-    .badge.good   { background: rgba(0,229,192,0.12); color: var(--green);  }
-    .badge.medium { background: rgba(255,170,0,0.12);  color: var(--orange); }
-    .badge.bad    { background: rgba(255,77,109,0.12);  color: var(--red);   }
+.podium-card.rank-1 { border-color: rgba(245,158,11,0.3); }
+.podium-card.rank-2 { border-color: rgba(148,163,184,0.25); }
+.podium-card.rank-3 { border-color: rgba(180,120,60,0.25); }
 
-    /* ===================================================
-       LÉGENDE COULEURS
-    ==================================================== */
-    .legend {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
+.rank-badge {
+  font-family: var(--font2);
+  font-size: 1.4rem;
+  font-weight: 700;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+}
 
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
+.rank-badge.r1 { background: rgba(245,158,11,0.15); color: var(--gold); border-color: rgba(245,158,11,0.3); }
+.rank-badge.r2 { background: rgba(148,163,184,0.1); color: #94a3b8; }
+.rank-badge.r3 { background: rgba(180,120,60,0.1);  color: #b47c3c; }
 
-    .legend-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-    }
+.podium-info { flex: 1; min-width: 0; }
+.podium-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.podium-score-val {
+  font-family: var(--font2);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.podium-score-val.green  { color: var(--green); }
+.podium-score-val.orange { color: var(--orange); }
+.podium-score-val.red    { color: var(--red); }
 
-    /* ===================================================
-       ANIMATIONS D'ENTRÉE
-    ==================================================== */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+.perf-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.perf-tag.top    { background: var(--green-glow);  color: var(--green); }
+.perf-tag.medium { background: var(--orange-glow); color: var(--orange); }
+.perf-tag.low    { background: var(--red-glow);    color: var(--red); }
 
-    .kpi-card:nth-child(1) { animation-delay: 0.05s; }
-    .kpi-card:nth-child(2) { animation-delay: 0.1s; }
-    .kpi-card:nth-child(3) { animation-delay: 0.15s; }
-    .kpi-card:nth-child(4) { animation-delay: 0.2s; }
+/* ================================================================
+   GRILLE GRAPHIQUES
+================================================================ */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
 
-    /* ===================================================
-       FOOTER
-    ==================================================== */
-    footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.78rem;
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
-    }
+@media (max-width: 860px) { .charts-grid { grid-template-columns: 1fr; } }
 
-    /* ===================================================
-       RESPONSIVE MOBILE
-    ==================================================== */
-    @media (max-width: 600px) {
-      .wrapper { padding: 20px 14px 40px; }
-      header   { flex-direction: column; align-items: flex-start; }
-    }
-  </style>
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px;
+  animation: slideUp 0.6s ease both;
+}
+
+.chart-card-title {
+  font-family: var(--font2);
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.chart-card-sub {
+  font-size: 0.75rem;
+  color: var(--text3);
+  margin-bottom: 20px;
+}
+
+.chart-wrap { position: relative; height: 260px; }
+
+/* Graphique classement horizontal */
+.ranking-bars { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ranking-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  width: 80px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.ranking-bar-bg {
+  flex: 1;
+  height: 28px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ranking-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+}
+
+.ranking-score {
+  font-family: var(--font2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  width: 52px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ================================================================
+   TABLEAU DE PERFORMANCES DÉTAILLÉ
+================================================================ */
+.table-section { animation: slideUp 0.7s ease both; }
+
+.table-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.table-header-title {
+  font-family: var(--font2);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Légende couleurs */
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--text2);
+}
+.legend-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+}
+
+/* Table */
+.table-scroll { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+thead tr {
+  background: rgba(255,255,255,0.02);
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-family: var(--font2);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr {
+  transition: background 0.15s;
+}
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+/* Cellule commerciale */
+.comm-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.comm-avatar {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.comm-name { font-weight: 600; font-size: 0.88rem; }
+.comm-rank { font-size: 0.7rem; color: var(--text3); margin-top: 1px; }
+
+/* Cellule barre de progression + taux */
+.taux-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.taux-bar-bg {
+  flex: 1;
+  height: 5px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.taux-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+
+.taux-badge {
+  font-size: 0.73rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Score badge grand */
+.score-badge-big {
+  font-family: var(--font2);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Classes couleur */
+.c-green  { color: var(--green); }
+.c-orange { color: var(--orange); }
+.c-red    { color: var(--red); }
+
+.bg-green  { background: var(--green-glow); }
+.bg-orange { background: var(--orange-glow); }
+.bg-red    { background: var(--red-glow); }
+
+.fill-green  { background: var(--green); }
+.fill-orange { background: var(--orange); }
+.fill-red    { background: var(--red); }
+
+/* Emoji indicateur performance */
+.perf-icon { font-size: 1rem; }
+
+/* ================================================================
+   ANIMATIONS
+================================================================ */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero > *:nth-child(1) { animation-delay: 0.05s; }
+.hero > *:nth-child(2) { animation-delay: 0.1s; }
+.hero > *:nth-child(3) { animation-delay: 0.15s; }
+.hero > *:nth-child(4) { animation-delay: 0.2s; }
+
+/* ================================================================
+   FOOTER
+================================================================ */
+.footer {
+  text-align: center;
+  color: var(--text3);
+  font-size: 0.75rem;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+/* ================================================================
+   RESPONSIVE MOBILE
+================================================================ */
+@media (max-width: 640px) {
+  .wrapper { padding: 0 14px 60px; }
+  .topbar  { padding: 14px; margin-bottom: 24px; }
+  .brand-sub { display: none; }
+  .kpi-big-val { font-size: 2rem; }
+  .score-hero-card { padding: 20px 16px; }
+  .chart-wrap { height: 220px; }
+  .table-header { flex-direction: column; align-items: flex-start; }
+  .controls-bar { gap: 8px; }
+  th, td { padding: 10px 10px; }
+  .taux-cell { min-width: 100px; }
+  .comm-avatar { display: none; }
+}
+</style>
 </head>
 
 <body>
-<div class="wrapper">
+<div class="app">
 
-  <!-- ===================== EN-TÊTE ===================== -->
-  <header>
-    <div class="header-left">
-      <h1>Performance <span>Commerciale</span></h1>
-      <p>Suivi objectifs vs réalisations — Bière & Vin</p>
+  <!-- ===== BARRE DE NAVIGATION ===== -->
+  <nav class="topbar">
+    <div class="brand">
+      <div class="brand-icon">📊</div>
+      <div>
+        <div class="brand-name">Performance Dashboard</div>
+        <div class="brand-sub">Suivi Commercial Bière & Vin</div>
+      </div>
     </div>
-    <div class="logo-badge">LIVE DATA</div>
-  </header>
-
-  <!-- ===================== CONTRÔLES ===================== -->
-  <div class="controls">
-    <label for="monthFilter">📅 Mois :</label>
-    <select id="monthFilter">
-      <option value="ALL">Tous les mois</option>
-    </select>
-    <button class="btn" onclick="loadData()">↻ Actualiser</button>
-
-  </div>
-
-  <!-- ===================== BANNIÈRE ÉTAT ===================== -->
-  <div id="statusBanner"></div>
-
-  <!-- ===================== KPI CARDS ===================== -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Taux Global</div>
-      <div class="kpi-value" id="kpiGlobal">—</div>
-      <div class="kpi-sub">Toutes catégories confondues</div>
+    <div class="topbar-right">
+      <div class="live-dot">Données Live</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Taux Bière</div>
-      <div class="kpi-value" id="kpiBiere">—</div>
-      <div class="kpi-sub">B1 + B2 + B3</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Taux Vin</div>
-      <div class="kpi-value" id="kpiVin">—</div>
-      <div class="kpi-sub">V1 + V2</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Meilleures Comm.</div>
-      <div class="kpi-value" style="font-size:1.1rem;line-height:1.4" id="kpiTop">—</div>
-      <div class="kpi-sub">≥ 100% d'atteinte</div>
-    </div>
-  </div>
+  </nav>
 
-  <!-- ===================== GRAPHIQUES ===================== -->
-  <div class="main-grid">
+  <div class="wrapper">
 
-    <!-- Graphique 1 : Objectif vs Réalisation Bière -->
-    <div class="panel">
-      <div class="panel-title">🍺 Bière <span>par commerciale</span></div>
-      <div class="chart-wrap">
-        <canvas id="chartBiere"></canvas>
+    <!-- ===== BOUTON ACTUALISER ===== -->
+    <div style="margin-bottom:32px">
+      <button class="btn btn-primary" onclick="loadData()">↻ Actualiser</button>
+    </div>
+
+    <!-- ===== BANNIÈRE D'ÉTAT ===== -->
+    <div id="statusBanner"></div>
+
+    <!-- ===== KPI HERO : TAUX PAR COMMERCIALE ===== -->
+    <div class="section-title" style="margin-bottom:14px">📊 Taux de Réalisation par Commerciale</div>
+    <div id="kpiHeroGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:28px">
+      <!-- Rempli dynamiquement -->
+    </div>
+
+    <!-- ===== TAUX DE RÉALISATION ===== -->
+    <div class="podium-section">
+      <div class="section-title">📈 Taux de Réalisation par Commerciale</div>
+      <div class="podium-grid" id="podiumGrid">
+        <!-- Rempli dynamiquement -->
       </div>
     </div>
 
-    <!-- Graphique 2 : Objectif vs Réalisation Vin -->
-    <div class="panel">
-      <div class="panel-title">🍷 Vin <span>par commerciale</span></div>
-      <div class="chart-wrap">
-        <canvas id="chartVin"></canvas>
+
+
+    <!-- ===== TABLEAU DÉTAILLÉ ===== -->
+    <div class="table-section">
+      <div class="section-title">📋 Détail des Performances</div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-header-title">Performances individuelles — toutes catégories</div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> ≥ 100% Atteint</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> 80–99% Proche</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> &lt; 80% Faible</div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Commerciale</th>
+                <th>Total Bière</th>
+                <th>Taux Bière</th>
+                <th>B1</th>
+                <th>B2</th>
+                <th>B3</th>
+                <th>Total Vin</th>
+                <th>Taux Vin</th>
+                <th>V1</th>
+                <th>V2</th>
+                <th>Taux Global</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="13" style="text-align:center;padding:48px;color:var(--text3)">
+                Cliquez sur "Actualiser" pour charger les données…
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- Tableau des performances -->
-    <div class="panel table-panel">
-      <div class="panel-title">📊 Détail des Performances <span>taux d'atteinte</span></div>
-
-      <!-- Légende des couleurs -->
-      <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> ≥ 100% Atteint</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div> 80–99% Proche</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> &lt; 80% Insuffisant</div>
-      </div>
-
-      <div class="table-scroll">
-        <table id="perfTable">
-          <thead>
-            <tr>
-              <th>Commerciale</th>
-              <th>Total Bière</th>
-              <th>Taux Bière</th>
-              <th>B1</th>
-              <th>B2</th>
-              <th>B3</th>
-              <th>Total Vin</th>
-              <th>Taux Vin</th>
-              <th>V1</th>
-              <th>V2</th>
-              <th>Taux Global</th>
-            </tr>
-          </thead>
-          <tbody id="perfBody">
-            <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px">
-              Cliquez sur "Actualiser" pour charger les données…
-            </td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="footer">
+      Dashboard Performance Commerciale &nbsp;·&nbsp; Developped By RACHID BENCHALE &nbsp;·&nbsp;
+      <span id="lastUpdate">—</span>
     </div>
 
-  </div><!-- fin main-grid -->
+  </div><!-- fin wrapper -->
+</div><!-- fin app -->
 
-  <footer>
-    Dashboard Performance Commerciale &nbsp;·&nbsp; Données Google Sheets &nbsp;·&nbsp; Mis à jour à chaque actualisation
-  </footer>
 
-</div><!-- fin wrapper -->
-
-<!-- ===================================================
-     JAVASCRIPT — Toute la logique du dashboard
-     Bien commenté pour les débutants !
-==================================================== -->
 <script>
-
-// =====================================================
-// ⚙️  CONFIGURATION — À MODIFIER PAR L'UTILISATEUR
-// =====================================================
-// Remplace ces deux URL par les tiennes (voir instructions)
+// ================================================================
+// ⚙️  CONFIGURATION — MODIFIE CES VALEURS POUR TES DONNÉES
+// ================================================================
 const CONFIG = {
-  // URL CSV de ta feuille "Objectifs" (publiée depuis Google Sheets)
-  urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
+  // Colle ici l'URL CSV de ta feuille "Objectifs" publiée depuis Google Sheets
+ urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
 
   // URL CSV de ta feuille "Réalisations"
   urlRealisations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=116592735&single=true&output=csv",
@@ -599,410 +843,426 @@ const CONFIG = {
   // Si true : utilise les données de démo (pour tester sans Sheets)
   demoMode: false
 };
-// =====================================================
+// ================================================================
 
 
-// =====================================================
+// ================================================================
 // 📦  DONNÉES DE DÉMONSTRATION
-// Utilisées si CONFIG.demoMode === true
 // Même structure que tes Google Sheets
-// =====================================================
-const DEMO_OBJECTIFS = [
-  { Mois:"Janvier", Commerciale:"Alice",   "Obj B1":120, "Obj B2":80, "Obj B3":50, "Total bière":250, "Obj V1":60, "Obj V2":40, "Total Vin":100 },
-  { Mois:"Janvier", Commerciale:"Béatrice","Obj B1":100, "Obj B2":70, "Obj B3":40, "Total bière":210, "Obj V1":50, "Obj V2":35, "Total Vin":85  },
-  { Mois:"Janvier", Commerciale:"Camille", "Obj B1":90,  "Obj B2":60, "Obj B3":35, "Total bière":185, "Obj V1":45, "Obj V2":30, "Total Vin":75  },
-  { Mois:"Février", Commerciale:"Alice",   "Obj B1":130, "Obj B2":85, "Obj B3":55, "Total bière":270, "Obj V1":65, "Obj V2":45, "Total Vin":110 },
-  { Mois:"Février", Commerciale:"Béatrice","Obj B1":110, "Obj B2":75, "Obj B3":45, "Total bière":230, "Obj V1":55, "Obj V2":38, "Total Vin":93  },
-  { Mois:"Février", Commerciale:"Camille", "Obj B1":95,  "Obj B2":65, "Obj B3":38, "Total bière":198, "Obj V1":48, "Obj V2":32, "Total Vin":80  },
+// ================================================================
+const DEMO_OBJ = [
+  { Commerciale:"Alice Dupont",   "Obj B1":120,"Obj B2":80,"Obj B3":50,"Total bière":250,"Obj V1":60,"Obj V2":40,"Total Vin":100 },
+  { Commerciale:"Béatrice Martin","Obj B1":100,"Obj B2":70,"Obj B3":40,"Total bière":210,"Obj V1":50,"Obj V2":35,"Total Vin":85  },
+  { Commerciale:"Camille Petit",  "Obj B1":90, "Obj B2":60,"Obj B3":35,"Total bière":185,"Obj V1":45,"Obj V2":30,"Total Vin":75  },
+  { Commerciale:"Diana Moreau",   "Obj B1":110,"Obj B2":75,"Obj B3":45,"Total bière":230,"Obj V1":55,"Obj V2":38,"Total Vin":93  },
+  { Commerciale:"Eva Leclerc",    "Obj B1":95, "Obj B2":65,"Obj B3":38,"Total bière":198,"Obj V1":48,"Obj V2":32,"Total Vin":80  },
 ];
 
-const DEMO_REALISATIONS = [
-  { Mois:"Janvier", Commerciale:"Alice",    B1:130, B2:75, B3:55, "Total Bières":260, V1:65, V2:42, "Total Vin":107 },
-  { Mois:"Janvier", Commerciale:"Béatrice", B1:88,  B2:60, B3:30, "Total Bières":178, V1:40, V2:28, "Total Vin":68  },
-  { Mois:"Janvier", Commerciale:"Camille",  B1:72,  B2:50, B3:28, "Total Bières":150, V1:36, V2:25, "Total Vin":61  },
-  { Mois:"Février", Commerciale:"Alice",    B1:140, B2:90, B3:58, "Total Bières":288, V1:70, V2:48, "Total Vin":118 },
-  { Mois:"Février", Commerciale:"Béatrice", B1:95,  B2:68, B3:40, "Total Bières":203, V1:50, V2:35, "Total Vin":85  },
-  { Mois:"Février", Commerciale:"Camille",  B1:80,  B2:55, B3:30, "Total Bières":165, V1:40, V2:28, "Total Vin":68  },
+const DEMO_REAL = [
+  { Commerciale:"Alice Dupont",   B1:138,B2:88,B3:58,"Total Bières":284,V1:68,V2:46,"Total Vin":114 },
+  { Commerciale:"Béatrice Martin",B1:92, B2:64,B3:33,"Total Bières":189,V1:43,V2:29,"Total Vin":72  },
+  { Commerciale:"Camille Petit",  B1:68, B2:48,B3:26,"Total Bières":142,V1:34,V2:23,"Total Vin":57  },
+  { Commerciale:"Diana Moreau",   B1:118,B2:78,B3:48,"Total Bières":244,V1:58,V2:40,"Total Vin":98  },
+  { Commerciale:"Eva Leclerc",    B1:78, B2:52,B3:30,"Total Bières":160,V1:40,V2:26,"Total Vin":66  },
 ];
 
 
-// =====================================================
-// 🔧  ÉTAT GLOBAL DE L'APPLICATION
-// =====================================================
-let chartBiere = null;  // instance du graphique bière
-let chartVin   = null;  // instance du graphique vin
-let allData    = [];    // données fusionnées objectifs + réalisations
+// ================================================================
+// 🔧  ÉTAT GLOBAL
+// ================================================================
+let chartMain = null;   // instance Chart.js
+let allData   = [];     // données fusionnées
 
 
-// =====================================================
+// ================================================================
 // 🚀  CHARGEMENT DES DONNÉES
-// Appelé au démarrage et sur clic "Actualiser"
-// =====================================================
+// ================================================================
 async function loadData() {
-  showBanner("loading", "Chargement…", "Connexion à Google Sheets en cours…");
-
+  showBanner("loading", "Chargement…", "Récupération des données en cours…");
   try {
-    let objectifs, realisations;
-
+    let obj, real;
     if (CONFIG.demoMode || CONFIG.urlObjectifs.includes("COLLER_ICI")) {
-      // Mode démo — pas besoin d'internet
-      objectifs    = DEMO_OBJECTIFS;
-      realisations = DEMO_REALISATIONS;
-
-      if (CONFIG.urlObjectifs.includes("COLLER_ICI")) {
-        showBanner("info", "📌 Mode Démonstration Actif",
-          `Pour connecter vos vraies données Google Sheets, cliquez sur "⚙ Configurer Google Sheets".`);
-      } else {
-        hideBanner();
-      }
+      obj  = DEMO_OBJ;
+      real = DEMO_REAL;
+      showBanner("info", "📌 Mode Démonstration",
+        "Vous voyez des données d'exemple. Pour connecter vos vraies données :<br>" +
+        "<ol>" +
+        "<li>Google Sheets → <strong>Fichier → Publier sur le Web</strong></li>" +
+        "<li>Choisir la feuille → format <strong>CSV</strong> → Publier</li>" +
+        "<li>Copier l'URL dans <code>CONFIG.urlObjectifs</code> / <code>CONFIG.urlRealisations</code></li>" +
+        "<li>Mettre <code>demoMode: false</code></li>" +
+        "</ol>");
     } else {
-      // Mode réel — récupère les CSV depuis Google Sheets
-      objectifs    = await fetchCSV(CONFIG.urlObjectifs);
-      realisations = await fetchCSV(CONFIG.urlRealisations);
+      obj  = await fetchCSV(CONFIG.urlObjectifs);
+      real = await fetchCSV(CONFIG.urlRealisations);
       hideBanner();
     }
 
-    // Fusionne les deux feuilles
-    allData = mergeData(objectifs, realisations);
+    allData = mergeData(obj, real);
+    renderAll();
 
-    // Remplit le filtre de mois
-    populateMonthFilter(allData);
-
-    // Affiche tout
-    renderDashboard();
-
-  } catch (err) {
-    showBanner("error", "❌ Erreur de chargement", `${err.message}<br>Vérifiez que vos URLs sont correctes et que les feuilles sont publiées.`);
+  } catch(e) {
+    showBanner("error", "❌ Erreur", "Impossible de charger les données.<br>" + e.message);
   }
 }
 
 
-// =====================================================
-// 🌐  FETCH CSV DEPUIS GOOGLE SHEETS
-// Lit le fichier CSV publié et le convertit en tableau
-// =====================================================
+// ================================================================
+// 🌐  FETCH & PARSE CSV
+// ================================================================
 async function fetchCSV(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Impossible d'accéder à l'URL : ${url}`);
-  const text = await res.text();
-  return parseCSV(text);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("URL inaccessible : " + url);
+  return parseCSV(await r.text());
 }
 
-
-// =====================================================
-// 📄  PARSE CSV → TABLEAU D'OBJETS
-// Convertit le texte CSV en objets JavaScript
-// =====================================================
 function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  // La première ligne = les noms de colonnes (en-têtes)
-  const headers = lines[0].split(",").map(h => h.trim().replace(/"/g, ""));
-  return lines.slice(1).map(line => {
-    const values = line.split(",").map(v => v.trim().replace(/"/g, ""));
-    const obj = {};
-    headers.forEach((h, i) => {
-      // Convertit en nombre si possible, sinon garde le texte
-      obj[h] = isNaN(values[i]) || values[i] === "" ? values[i] : Number(values[i]);
-    });
-    return obj;
-  }).filter(r => r[headers[0]]); // retire les lignes vides
+  const lines   = text.trim().split("\n");
+  const headers = lines[0].split(",").map(h => h.trim().replace(/"/g,""));
+  return lines.slice(1)
+    .map(line => {
+      const vals = line.split(",").map(v => v.trim().replace(/"/g,""));
+      const obj  = {};
+      headers.forEach((h,i) => {
+        obj[h] = (vals[i] !== "" && !isNaN(vals[i])) ? Number(vals[i]) : vals[i];
+      });
+      return obj;
+    })
+    .filter(r => r[headers[0]]);
 }
 
 
-// =====================================================
-// 🔗  FUSION DES DONNÉES
-// Joint les objectifs et réalisations par Mois + Commerciale
-// =====================================================
-function mergeData(objectifs, realisations) {
-  return objectifs.map(obj => {
-    // Cherche la ligne de réalisation correspondante
-    const real = realisations.find(r =>
-      r.Mois === obj.Mois && r.Commerciale === obj.Commerciale
-    ) || {};
+// ================================================================
+// 🔗  FUSION OBJECTIFS + RÉALISATIONS
+// ================================================================
+function mergeData(objectives, realisations) {
+  return objectives.map(o => {
+    const r = realisations.find(x => x.Commerciale === o.Commerciale) || {};
+    const taux = (rv, ov) => ov > 0 ? Math.round((rv/ov)*100) : null;
 
-    // Calcule les taux d'atteinte (évite la division par zéro)
-    const taux = (r, o) => o > 0 ? Math.round((r / o) * 100) : null;
+    const tauxBiere  = taux(r["Total Bières"] || 0, o["Total bière"] || 0);
+    const tauxVin    = taux(r["Total Vin"]    || 0, o["Total Vin"]   || 0);
+    const totalReal  = (r["Total Bières"] || 0) + (r["Total Vin"] || 0);
+    const totalObj   = (o["Total bière"]  || 0) + (o["Total Vin"] || 0);
+    const tauxGlobal = taux(totalReal, totalObj);
+
+    // Score = taux global (1 point par 1%)
+    const score = tauxGlobal;
 
     return {
-      Mois:        obj.Mois,
-      Commerciale: obj.Commerciale,
-
-      // Objectifs bière
-      objB1: obj["Obj B1"]      || 0,
-      objB2: obj["Obj B2"]      || 0,
-      objB3: obj["Obj B3"]      || 0,
-      objTotBiere: obj["Total bière"] || 0,
-
-      // Objectifs vin
-      objV1: obj["Obj V1"]      || 0,
-      objV2: obj["Obj V2"]      || 0,
-      objTotVin: obj["Total Vin"] || 0,
-
-      // Réalisations bière
-      realB1: real["B1"]            || 0,
-      realB2: real["B2"]            || 0,
-      realB3: real["B3"]            || 0,
-      realTotBiere: real["Total Bières"] || 0,
-
-      // Réalisations vin
-      realV1: real["V1"]            || 0,
-      realV2: real["V2"]            || 0,
-      realTotVin: real["Total Vin"]  || 0,
-
-      // Taux calculés
-      tauxB1:      taux(real["B1"],         obj["Obj B1"]),
-      tauxB2:      taux(real["B2"],         obj["Obj B2"]),
-      tauxB3:      taux(real["B3"],         obj["Obj B3"]),
-      tauxBiere:   taux(real["Total Bières"], obj["Total bière"]),
-      tauxV1:      taux(real["V1"],         obj["Obj V1"]),
-      tauxV2:      taux(real["V2"],         obj["Obj V2"]),
-      tauxVin:     taux(real["Total Vin"],  obj["Total Vin"]),
-
-      // Taux global (toutes catégories)
-      tauxGlobal: taux(
-        (real["Total Bières"] || 0) + (real["Total Vin"] || 0),
-        (obj["Total bière"]   || 0) + (obj["Total Vin"]  || 0)
-      )
+      Commerciale: o.Commerciale,
+      // Objectifs
+      objB1: o["Obj B1"]||0, objB2: o["Obj B2"]||0, objB3: o["Obj B3"]||0,
+      objTotBiere: o["Total bière"]||0,
+      objV1: o["Obj V1"]||0, objV2: o["Obj V2"]||0,
+      objTotVin: o["Total Vin"]||0,
+      // Réalisations
+      realB1: r["B1"]||0, realB2: r["B2"]||0, realB3: r["B3"]||0,
+      realTotBiere: r["Total Bières"]||0,
+      realV1: r["V1"]||0, realV2: r["V2"]||0,
+      realTotVin: r["Total Vin"]||0,
+      // Taux
+      tauxB1:    taux(r["B1"]||0, o["Obj B1"]||0),
+      tauxB2:    taux(r["B2"]||0, o["Obj B2"]||0),
+      tauxB3:    taux(r["B3"]||0, o["Obj B3"]||0),
+      tauxBiere, tauxVin, tauxGlobal, score,
+      // Statut
+      statut: score >= 100 ? "top" : score >= 80 ? "medium" : "low"
     };
   });
 }
 
 
-// =====================================================
-// 📅  FILTRE PAR MOIS — peuple le <select>
-// =====================================================
-function populateMonthFilter(data) {
-  const select = document.getElementById("monthFilter");
-  const mois = [...new Set(data.map(d => d.Mois))];
-  // Vide et recrée les options
-  select.innerHTML = `<option value="ALL">Tous les mois</option>`;
-  mois.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value = m; opt.textContent = m;
-    select.appendChild(opt);
+// ================================================================
+// 🎨  RENDU COMPLET
+// ================================================================
+function renderAll() {
+  const data = [...allData].sort((a,b) => (b.tauxGlobal||0) - (a.tauxGlobal||0));
+  updateKPIs(data);
+  updatePodium(data);
+  updateTable(data);
+}
+
+
+// ================================================================
+// 🍩  KPI CARDS — DONUTS PAR COMMERCIALE (BIÈRE + VIN)
+// ================================================================
+let kpiDonuts = [];
+
+function updateKPIs(data) {
+  kpiDonuts.forEach(c => c.destroy());
+  kpiDonuts = [];
+
+  const container = document.getElementById("kpiHeroGrid");
+  container.innerHTML = "";
+
+  const avatarColors = [
+    ["#3b82f6","rgba(59,130,246,0.15)"],
+    ["#10b981","rgba(16,185,129,0.15)"],
+    ["#f59e0b","rgba(245,158,11,0.15)"],
+    ["#a855f7","rgba(168,85,247,0.15)"],
+    ["#ef4444","rgba(239,68,68,0.15)"],
+    ["#06b6d4","rgba(6,182,212,0.15)"],
+  ];
+
+  data.forEach((d, i) => {
+    const [ac, ab] = avatarColors[i % avatarColors.length];
+    const initiale = d.Commerciale.charAt(0).toUpperCase();
+
+    const colorB = (d.tauxBiere||0) >= 100 ? "#10b981" : (d.tauxBiere||0) >= 80 ? "#f97316" : "#ef4444";
+    const colorV = (d.tauxVin||0)   >= 100 ? "#10b981" : (d.tauxVin||0)   >= 80 ? "#f97316" : "#ef4444";
+
+    const valB = Math.min(d.tauxBiere || 0, 100);
+    const valV = Math.min(d.tauxVin   || 0, 100);
+
+    const idB = `donut-biere-${i}`;
+    const idV = `donut-vin-${i}`;
+
+    const card = document.createElement("div");
+    card.className = "score-hero-card";
+    card.style.animationDelay = (i * 0.06) + "s";
+    card.innerHTML = `
+      <!-- Nom + avatar -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+        <div style="width:34px;height:34px;border-radius:8px;background:${ab};color:${ac};display:grid;place-items:center;font-weight:700;font-size:0.85rem;flex-shrink:0">${initiale}</div>
+        <div style="font-weight:700;font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.Commerciale}</div>
+      </div>
+
+      <!-- Deux donuts côte à côte -->
+      <div style="display:flex;justify-content:space-around;align-items:flex-end;gap:12px">
+
+        <!-- Donut Bière -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="position:relative;width:90px;height:90px">
+            <canvas id="${idB}" width="90" height="90"></canvas>
+            <div style="position:absolute;inset:0;display:grid;place-items:center;font-family:'Space Grotesk',sans-serif;font-size:0.95rem;font-weight:700;color:${colorB}">
+              ${d.tauxBiere !== null ? d.tauxBiere+"%" : "—"}
+            </div>
+          </div>
+          <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text2)">🍺 Bière</div>
+        </div>
+
+        <!-- Donut Vin -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="position:relative;width:90px;height:90px">
+            <canvas id="${idV}" width="90" height="90"></canvas>
+            <div style="position:absolute;inset:0;display:grid;place-items:center;font-family:'Space Grotesk',sans-serif;font-size:0.95rem;font-weight:700;color:${colorV}">
+              ${d.tauxVin !== null ? d.tauxVin+"%" : "—"}
+            </div>
+          </div>
+          <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text2)">🍷 Vin</div>
+        </div>
+
+      </div>`;
+
+    container.appendChild(card);
+
+    // Crée les deux donuts après insertion dans le DOM
+    setTimeout(() => {
+      [
+        { id: idB, val: valB, color: colorB },
+        { id: idV, val: valV, color: colorV },
+      ].forEach(({ id, val, color }) => {
+        const chart = new Chart(document.getElementById(id).getContext("2d"), {
+          type: "doughnut",
+          data: {
+            datasets: [{
+              data: [val, 100 - val],
+              backgroundColor: [color, "rgba(255,255,255,0.05)"],
+              borderWidth: 0,
+              hoverOffset: 0
+            }]
+          },
+          options: {
+            responsive: false,
+            cutout: "74%",
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            animation: { animateRotate: true, duration: 900 }
+          }
+        });
+        kpiDonuts.push(chart);
+      });
+    }, 50);
   });
 }
 
 
-// =====================================================
-// 🎨  AFFICHAGE COMPLET DU DASHBOARD
-// =====================================================
-function renderDashboard() {
-  const filtre = document.getElementById("monthFilter").value;
-  // Filtre les données selon le mois sélectionné
-  const data = filtre === "ALL" ? allData : allData.filter(d => d.Mois === filtre);
+// ================================================================
+// 📈  TAUX DE RÉALISATION PAR COMMERCIALE
+// ================================================================
+function updatePodium(data) {
+  const container = el("podiumGrid");
+  container.innerHTML = "";
 
-  updateKPIs(data);
-  updateTable(data);
-  updateCharts(data);
+  const avatarColors = [
+    ["#3b82f6","rgba(59,130,246,0.15)"],
+    ["#10b981","rgba(16,185,129,0.15)"],
+    ["#f59e0b","rgba(245,158,11,0.15)"],
+    ["#a855f7","rgba(168,85,247,0.15)"],
+    ["#ef4444","rgba(239,68,68,0.15)"],
+    ["#06b6d4","rgba(6,182,212,0.15)"],
+  ];
+
+  data.forEach((d, i) => {
+    const [ac, ab] = avatarColors[i % avatarColors.length];
+    const initiale  = d.Commerciale.charAt(0).toUpperCase();
+    const clsG = colorClass(d.tauxGlobal);
+    const clsB = colorClass(d.tauxBiere);
+    const clsV = colorClass(d.tauxVin);
+    const statutCls = d.statut==="top"?"top":d.statut==="medium"?"medium":"low";
+    const statutLabel = d.statut==="top"?"🔥 Top":d.statut==="medium"?"👍 Moyen":"⚠️ Faible";
+
+    const card = document.createElement("div");
+    card.className = "podium-card";
+    card.style.animationDelay = (i * 0.06)+"s";
+    card.style.flexDirection  = "column";
+    card.style.alignItems     = "stretch";
+    card.style.gap            = "12px";
+    card.innerHTML = `
+      <!-- En-tête : avatar + nom + statut -->
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="comm-avatar" style="background:${ab};color:${ac};width:36px;height:36px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:0.85rem;flex-shrink:0">${initiale}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.Commerciale}</div>
+        </div>
+        <span class="perf-tag ${statutCls}">${statutLabel}</span>
+      </div>
+
+      <!-- Taux Global (grand) -->
+      <div style="text-align:center;padding:6px 0 2px">
+        <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);font-weight:600;margin-bottom:4px">Taux Global</div>
+        <div class="podium-score-val ${clsG}" style="font-size:2rem">${d.tauxGlobal !== null ? d.tauxGlobal+"%" : "—"}</div>
+      </div>
+
+      <!-- Barres Bière et Vin -->
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text2);margin-bottom:4px">
+            <span>🍺 Bière</span><span class="${clsB}" style="font-weight:700">${d.tauxBiere !== null ? d.tauxBiere+"%" : "—"}</span>
+          </div>
+          <div class="taux-bar-bg" style="height:6px">
+            <div class="taux-bar-fill" style="width:${Math.min(d.tauxBiere||0,100)}%;background:${d.tauxBiere>=100?'var(--green)':d.tauxBiere>=80?'var(--orange)':'var(--red)'}"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text2);margin-bottom:4px">
+            <span>🍷 Vin</span><span class="${clsV}" style="font-weight:700">${d.tauxVin !== null ? d.tauxVin+"%" : "—"}</span>
+          </div>
+          <div class="taux-bar-bg" style="height:6px">
+            <div class="taux-bar-fill" style="width:${Math.min(d.tauxVin||0,100)}%;background:${d.tauxVin>=100?'var(--green)':d.tauxVin>=80?'var(--orange)':'var(--red)'}"></div>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
 }
 
 
-// =====================================================
-// 📊  MISE À JOUR DES KPI CARDS
-// =====================================================
-function updateKPIs(data) {
-  const avg = (key) => {
-    const vals = data.map(d => d[key]).filter(v => v !== null);
-    return vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : null;
-  };
-
-  const global = avg("tauxGlobal");
-  const biere  = avg("tauxBiere");
-  const vin    = avg("tauxVin");
-
-  // Commerciales ayant ≥ 100%
-  const top = [...new Set(data.filter(d => d.tauxGlobal >= 100).map(d => d.Commerciale))];
-
-  document.getElementById("kpiGlobal").textContent = global !== null ? global+"%" : "—";
-  document.getElementById("kpiBiere").textContent  = biere  !== null ? biere +"%" : "—";
-  document.getElementById("kpiVin").textContent    = vin    !== null ? vin   +"%" : "—";
-  document.getElementById("kpiTop").textContent    = top.length ? top.join(", ") : "Aucune";
-
-  // Couleur du KPI global
-  const el = document.getElementById("kpiGlobal");
-  el.style.color = global >= 100 ? "var(--green)" : global >= 80 ? "var(--orange)" : "var(--red)";
-}
-
-
-// =====================================================
-// 🏷️  MISE À JOUR DU TABLEAU
-// =====================================================
+// ================================================================
+// 📋  TABLEAU DÉTAILLÉ
+// ================================================================
 function updateTable(data) {
-  const tbody = document.getElementById("perfBody");
-
+  const tbody = el("tableBody");
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px">Aucune donnée pour ce mois.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:48px;color:var(--text3)">Aucune donnée.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = data.map(d => `
-    <tr>
-      <td class="cell-name">${d.Commerciale}</td>
-      <td>${d.realTotBiere} / ${d.objTotBiere}</td>
-      <td>${progressCell(d.tauxBiere)}</td>
-      <td>${mini(d.realB1, d.objB1, d.tauxB1)}</td>
-      <td>${mini(d.realB2, d.objB2, d.tauxB2)}</td>
-      <td>${mini(d.realB3, d.objB3, d.tauxB3)}</td>
-      <td>${d.realTotVin} / ${d.objTotVin}</td>
-      <td>${progressCell(d.tauxVin)}</td>
-      <td>${mini(d.realV1, d.objV1, d.tauxV1)}</td>
-      <td>${mini(d.realV2, d.objV2, d.tauxV2)}</td>
-      <td>${progressCell(d.tauxGlobal)}</td>
-    </tr>
-  `).join("");
+  // Couleurs d'avatar — cycle de couleurs distinctes
+  const avatarColors = [
+    ["#3b82f6","rgba(59,130,246,0.15)"],
+    ["#10b981","rgba(16,185,129,0.15)"],
+    ["#f59e0b","rgba(245,158,11,0.15)"],
+    ["#a855f7","rgba(168,85,247,0.15)"],
+    ["#ef4444","rgba(239,68,68,0.15)"],
+    ["#06b6d4","rgba(6,182,212,0.15)"],
+  ];
+
+  tbody.innerHTML = data.map((d, i) => {
+    const [ac, ab] = avatarColors[i % avatarColors.length];
+    const initiale = d.Commerciale.charAt(0).toUpperCase();
+    const statutLabel = d.statut==="top"?"🔥 Top Performer": d.statut==="medium"?"👍 Moyen":"⚠️ Faible";
+    const statutCls   = d.statut==="top"?"top":d.statut==="medium"?"medium":"low";
+
+    return `<tr>
+      <td>
+        <div class="comm-cell">
+          <div class="comm-avatar" style="background:${ab};color:${ac};">${initiale}</div>
+          <div>
+            <div class="comm-name">${d.Commerciale}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:0.8rem">${d.realTotBiere}/${d.objTotBiere}</td>
+      <td>${tauxCell(d.tauxBiere)}</td>
+      <td>${miniCell(d.realB1,d.objB1,d.tauxB1)}</td>
+      <td>${miniCell(d.realB2,d.objB2,d.tauxB2)}</td>
+      <td>${miniCell(d.realB3,d.objB3,d.tauxB3)}</td>
+      <td style="font-size:0.8rem">${d.realTotVin}/${d.objTotVin}</td>
+      <td>${tauxCell(d.tauxVin)}</td>
+      <td>${miniCell(d.realV1,d.objV1,d.tauxV1)}</td>
+      <td>${miniCell(d.realV2,d.objV2,d.tauxV2)}</td>
+      <td>${tauxCell(d.tauxGlobal)}</td>
+      <td><span class="perf-tag ${statutCls}">${statutLabel}</span></td>
+    </tr>`;
+  }).join("");
 }
 
 
-// =====================================================
-// 🔢  CELLULE AVEC BARRE DE PROGRESSION
-// =====================================================
-function progressCell(taux) {
+// ================================================================
+// 🎨  HELPERS UI
+// ================================================================
+
+// Retourne la classe couleur selon le taux
+function colorClass(taux) {
+  if (taux === null) return "";
+  return taux >= 100 ? "c-green" : taux >= 80 ? "c-orange" : "c-red";
+}
+
+// Barre de progression avec badge
+function tauxCell(taux) {
   if (taux === null) return "—";
-  const cls = taux >= 100 ? "good" : taux >= 80 ? "medium" : "bad";
-  const w   = Math.min(taux, 100); // barre ne dépasse pas 100% visuellement
-  return `
-    <div class="progress-wrap">
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill ${cls}" style="width:${w}%"></div>
-      </div>
-      <span class="badge ${cls}">${taux}%</span>
-    </div>`;
+  const cls = colorClass(taux);
+  const bg  = cls==="c-green"?"fill-green":cls==="c-orange"?"fill-orange":"fill-red";
+  const bdg = cls==="c-green"?"bg-green":cls==="c-orange"?"bg-orange":"bg-red";
+  return `<div class="taux-cell">
+    <div class="taux-bar-bg">
+      <div class="taux-bar-fill ${bg}" style="width:${Math.min(taux,100)}%"></div>
+    </div>
+    <span class="taux-badge ${bdg} ${cls}">${taux}%</span>
+  </div>`;
 }
 
-
-// =====================================================
-// 📌  CELLULE MINI (réal/obj + badge couleur)
-// =====================================================
-function mini(real, obj, taux) {
+// Cellule mini (réal/obj + badge)
+function miniCell(real, obj, taux) {
   if (taux === null) return "—";
-  const cls = taux >= 100 ? "good" : taux >= 80 ? "medium" : "bad";
-  return `<span style="font-size:0.8rem">${real}/${obj}</span> <span class="badge ${cls}">${taux}%</span>`;
+  const cls = colorClass(taux);
+  const bdg = cls==="c-green"?"bg-green":cls==="c-orange"?"bg-orange":"bg-red";
+  return `<span style="font-size:0.78rem;color:var(--text2)">${real}/${obj}</span>
+  <span class="taux-badge ${bdg} ${cls}" style="margin-left:4px">${taux}%</span>`;
 }
 
-
-// =====================================================
-// 📈  MISE À JOUR DES GRAPHIQUES (Chart.js)
-// =====================================================
-function updateCharts(data) {
-  const labels = data.map(d => d.Commerciale);
-
-  // Couleurs des barres
-  const colObj  = "rgba(108,99,255,0.7)";
-  const colReal = "rgba(0,229,192,0.7)";
-
-  // --- Graphique Bière ---
-  const ctxB = document.getElementById("chartBiere").getContext("2d");
-  if (chartBiere) chartBiere.destroy(); // détruit l'ancien pour éviter les doublons
-  chartBiere = new Chart(ctxB, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        { label: "Objectif Bière",    data: data.map(d => d.objTotBiere),  backgroundColor: colObj,  borderRadius: 6 },
-        { label: "Réalisation Bière", data: data.map(d => d.realTotBiere), backgroundColor: colReal, borderRadius: 6 }
-      ]
-    },
-    options: chartOptions("Unités")
-  });
-
-  // --- Graphique Vin ---
-  const ctxV = document.getElementById("chartVin").getContext("2d");
-  if (chartVin) chartVin.destroy();
-  chartVin = new Chart(ctxV, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        { label: "Objectif Vin",    data: data.map(d => d.objTotVin),  backgroundColor: colObj,  borderRadius: 6 },
-        { label: "Réalisation Vin", data: data.map(d => d.realTotVin), backgroundColor: colReal, borderRadius: 6 }
-      ]
-    },
-    options: chartOptions("Unités")
-  });
-}
+// Raccourci getElementById
+function el(id) { return document.getElementById(id); }
 
 
-// =====================================================
-// 🎛️  OPTIONS COMMUNES DES GRAPHIQUES
-// =====================================================
-function chartOptions(yLabel) {
-  return {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        labels: { color: "#7b82a8", font: { family: "DM Sans", size: 11 }, boxWidth: 12 }
-      },
-      tooltip: {
-        backgroundColor: "#1e2235",
-        borderColor: "#2a2f4a",
-        borderWidth: 1,
-        titleColor: "#e8eaf6",
-        bodyColor: "#7b82a8"
-      }
-    },
-    scales: {
-      x: {
-        grid: { color: "rgba(255,255,255,0.04)" },
-        ticks: { color: "#7b82a8", font: { family: "DM Sans", size: 11 } }
-      },
-      y: {
-        grid: { color: "rgba(255,255,255,0.04)" },
-        ticks: { color: "#7b82a8", font: { family: "DM Sans", size: 11 } },
-        title: { display: true, text: yLabel, color: "#7b82a8", font: { size: 10 } }
-      }
-    }
-  };
-}
-
-
-// =====================================================
+// ================================================================
 // 💬  BANNIÈRE D'ÉTAT
-// =====================================================
+// ================================================================
 function showBanner(type, title, body) {
-  const el = document.getElementById("statusBanner");
-  el.className = type;
-  el.style.display = "block";
-  el.innerHTML = `<div class="banner-title">${title}</div>${body}`;
+  const b = el("statusBanner");
+  b.className = type;
+  b.style.display = "block";
+  b.innerHTML = `<div class="banner-title">${title}</div>${body}`;
 }
-
-function hideBanner() {
-  document.getElementById("statusBanner").style.display = "none";
-}
+function hideBanner() { el("statusBanner").style.display = "none"; }
 
 
-// =====================================================
-// 🛠️  AIDE CONFIGURATION GOOGLE SHEETS
-// =====================================================
-function showSetupHelp() {
-  showBanner("info", "⚙️ Comment connecter Google Sheets", `
-    <ol>
-      <li>Ouvre ton Google Sheets, menu <strong>Fichier → Partager → Publier sur le Web</strong></li>
-      <li>Dans le menu déroulant, choisis la feuille <strong>"Objectifs"</strong></li>
-      <li>Format : <strong>Valeurs séparées par des virgules (.csv)</strong></li>
-      <li>Clique sur <strong>"Publier"</strong> et copie l'URL générée</li>
-      <li>Dans ce fichier HTML, remplace <code>COLLER_ICI_L_URL_CSV_OBJECTIFS</code> par cette URL</li>
-      <li>Recommence pour la feuille <strong>"Réalisations"</strong></li>
-      <li>Mets <code>demoMode: false</code> dans la section CONFIG</li>
-      <li>Sauvegarde le fichier et ouvre-le dans ton navigateur ✅</li>
-    </ol>
-    <br>
-    <strong>⚠️ Important :</strong> Les colonnes doivent correspondre exactement aux noms définis (Mois, Commerciale, Obj B1, etc.)
-  `);
-}
-
-
-// =====================================================
-// 🎯  DÉMARRAGE — exécuté à l'ouverture de la page
-// =====================================================
-
-// Écoute le changement de mois pour re-filtrer les données
-document.getElementById("monthFilter").addEventListener("change", renderDashboard);
-
-// Lance le chargement initial
+// ================================================================
+// 🎯  DÉMARRAGE
+// ================================================================
 loadData();
-
 </script>
+
 </body>
 </html>
