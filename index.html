@@ -1,9 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Performance Commerciale — Dashboard</title>
+<link rel="icon" type="image/png" href="favicon.png"/>
 
 <!-- Chart.js pour les graphiques -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -751,6 +753,9 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
     </div>
     <div class="topbar-right">
       <div class="live-dot">Données Live</div>
+      <div style="font-size:0.72rem;color:var(--text3);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px">
+        🕐 <span id="lastUpdate">—</span>
+      </div>
     </div>
   </nav>
 
@@ -835,7 +840,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 // ================================================================
 const CONFIG = {
   // Colle ici l'URL CSV de ta feuille "Objectifs" publiée depuis Google Sheets
- urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
+   urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
 
   // URL CSV de ta feuille "Réalisations"
   urlRealisations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=116592735&single=true&output=csv",
@@ -899,6 +904,11 @@ async function loadData() {
     }
 
     allData = mergeData(obj, real);
+    // Affiche la date et l'heure de la dernière actualisation
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("fr-FR", { day:"2-digit", month:"long", year:"numeric" });
+    const timeStr = now.toLocaleTimeString("fr-FR", { hour:"2-digit", minute:"2-digit" });
+    document.getElementById("lastUpdate").textContent = `${dateStr} à ${timeStr}`;
     renderAll();
 
   } catch(e) {
