@@ -821,7 +821,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
     </div>
 
     <div class="footer">
-      Dashboard Performance Commerciale &nbsp;·&nbsp; Developped By RACHID BENCHALEH  &nbsp;·&nbsp;
+      Dashboard Performance Commerciale &nbsp;·&nbsp; Powered By RACHID BENCHALEH &nbsp;·&nbsp;
       <span id="lastUpdate">—</span>
     </div>
 
@@ -835,7 +835,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 // ================================================================
 const CONFIG = {
   // Colle ici l'URL CSV de ta feuille "Objectifs" publiée depuis Google Sheets
-  urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
+ urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
 
   // URL CSV de ta feuille "Réalisations"
   urlRealisations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=116592735&single=true&output=csv",
@@ -965,6 +965,8 @@ function mergeData(objectives, realisations) {
       tauxB1:    taux(r["B1"]||0, o["Obj B1"]||0),
       tauxB2:    taux(r["B2"]||0, o["Obj B2"]||0),
       tauxB3:    taux(r["B3"]||0, o["Obj B3"]||0),
+      tauxV1:    taux(r["V1"]||0, o["Obj V1"]||0),
+      tauxV2:    taux(r["V2"]||0, o["Obj V2"]||0),
       tauxBiere, tauxVin, tauxGlobal, score,
       // Statut
       statut: score >= 100 ? "top" : score >= 80 ? "medium" : "low"
@@ -1119,15 +1121,16 @@ function updatePodium(data) {
 
     const catRows = cats.map(c => {
       const t     = d[c.key];
-      const color = t >= 100 ? "#10b981" : t >= 80 ? "#f97316" : "#ef4444";
-      const w     = Math.min(t || 0, 100);
+      const valid = t !== null && t !== undefined;
+      const color = !valid ? "var(--text3)" : t >= 100 ? "#10b981" : t >= 80 ? "#f97316" : "#ef4444";
+      const w     = valid ? Math.min(t, 100) : 0;
       return `
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-size:0.72rem;font-weight:700;color:var(--text2);width:40px;flex-shrink:0">${c.emoji} ${c.label}</span>
           <div style="flex:1;height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden">
             <div style="height:100%;width:${w}%;background:${color};border-radius:99px;transition:width 0.9s cubic-bezier(0.4,0,0.2,1)"></div>
           </div>
-          <span style="font-family:'Space Grotesk',sans-serif;font-size:0.82rem;font-weight:700;color:${color};width:42px;text-align:right;flex-shrink:0">${t !== null ? t+"%" : "—"}</span>
+          <span style="font-family:'Space Grotesk',sans-serif;font-size:0.82rem;font-weight:700;color:${color};width:42px;text-align:right;flex-shrink:0">${valid ? t+"%" : "—"}</span>
         </div>`;
     }).join("");
 
