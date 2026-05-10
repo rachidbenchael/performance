@@ -101,39 +101,92 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 28px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(7,11,20,0.8);
-  backdrop-filter: blur(16px);
+  padding: 16px 28px;
+  border-bottom: 1px solid rgba(59,130,246,0.2);
+  background: rgba(7,11,20,0.92);
+  backdrop-filter: blur(20px);
   position: sticky; top: 0; z-index: 100;
   margin-bottom: 40px;
+  box-shadow: 0 1px 0 rgba(59,130,246,0.15), 0 4px 24px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+
+/* Scan line animée */
+.topbar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 60%; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(59,130,246,0.05), transparent);
+  animation: scanLine 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes scanLine {
+  0%   { left: -60%; }
+  100% { left: 140%; }
+}
+
+@keyframes hexSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
-.brand-icon {
-  width: 36px; height: 36px;
-  background: var(--accent);
-  border-radius: 8px;
-  display: grid; place-items: center;
-  font-size: 1rem;
+.brand-icon-hex {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 8px rgba(59,130,246,0.6));
 }
+
+.brand-icon-hex .hex-outer {
+  animation: hexSpin 12s linear infinite;
+  transform-origin: 21px 21px;
+}
+
+.brand-text-group { display: flex; flex-direction: column; gap: 4px; }
 
 .brand-name {
   font-family: var(--font2);
+  font-size: 1rem;
   font-weight: 700;
-  font-size: 0.95rem;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.14em;
+  line-height: 1;
 }
 
-.brand-sub {
-  font-size: 0.72rem;
-  color: var(--text2);
-  font-weight: 400;
+.brand-perf { color: var(--text); }
+.brand-dash { color: var(--accent); }
+
+.brand-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+}
+
+.brand-sub { color: var(--text3); }
+.brand-separator { color: var(--border2); }
+
+.brand-agence {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #00e5c0;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 10px rgba(0,229,192,0.6);
+}
+
+.agence-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #00e5c0;
+  box-shadow: 0 0 8px #00e5c0;
+  animation: pulse 2s ease-in-out infinite;
 }
 
 .topbar-right {
@@ -147,12 +200,14 @@ body::after {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
-  color: var(--text2);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--green);
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.3);
   border-radius: 20px;
-  padding: 5px 12px;
+  padding: 5px 14px;
 }
 
 .live-dot::before {
@@ -160,8 +215,25 @@ body::after {
   width: 6px; height: 6px;
   border-radius: 50%;
   background: var(--green);
+  box-shadow: 0 0 8px var(--green);
   animation: pulse 2s ease-in-out infinite;
 }
+
+/* Pilule heure */
+.update-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  color: var(--text3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-family: var(--font2);
+}
+
+.update-icon { color: var(--accent); font-size: 0.85rem; }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
@@ -747,19 +819,47 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 <body>
 <div class="app">
 
-  <!-- ===== BARRE DE NAVIGATION ===== -->
+  <!-- ===== BARRE DE NAVIGATION FUTURISTE ===== -->
   <nav class="topbar">
     <div class="brand">
-      <div class="brand-icon">📊</div>
-      <div>
-        <div class="brand-name">Performance Dashboard</div>
-        <div class="brand-sub">Suivi Commercial Bière & Vin</div>
+      <!-- Logo hexagonal animé -->
+      <div class="brand-icon-hex">
+        <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3b82f6"/>
+              <stop offset="100%" stop-color="#00e5c0"/>
+            </linearGradient>
+          </defs>
+          <polygon class="hex-outer" points="21,2 38,11 38,31 21,40 4,31 4,11"
+            fill="none" stroke="url(#hexGrad)" stroke-width="1.5"/>
+          <polygon points="21,8 33,14.5 33,27.5 21,34 9,27.5 9,14.5"
+            fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.25)" stroke-width="1"/>
+          <text x="21" y="26" text-anchor="middle" font-size="13">📊</text>
+        </svg>
+      </div>
+
+      <div class="brand-text-group">
+        <div class="brand-name">
+          <span class="brand-perf">PERFORMANCE</span>
+          <span class="brand-dash"> DASHBOARD</span>
+        </div>
+        <div class="brand-sub-row">
+          <span class="brand-sub">Suivi Commercial · Bière & Vin</span>
+          <span class="brand-separator">|</span>
+          <span class="brand-agence">
+            <span class="agence-dot"></span>
+            AGENCE AGADIR
+          </span>
+        </div>
       </div>
     </div>
+
     <div class="topbar-right">
       <div class="live-dot">Données Live</div>
-      <div style="font-size:0.72rem;color:var(--text3);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 12px">
-        🕐 <span id="lastUpdate">—</span>
+      <div class="update-pill">
+        <span class="update-icon">◷</span>
+        <span id="lastUpdate">—</span>
       </div>
     </div>
   </nav>
@@ -831,7 +931,7 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
     </div>
 
     <div class="footer">
-      Dashboard Performance Commerciale &nbsp;·&nbsp; Données Google Sheets &nbsp;·&nbsp;
+      Dashboard Performance Commerciale &nbsp;·&nbsp; Powered By RACHID BENCHALEH AGENCE AGADIR &nbsp;·&nbsp;
       <span id="lastUpdate">—</span>
     </div>
 
@@ -843,14 +943,12 @@ tbody tr:hover { background: rgba(255,255,255,0.02); }
 // ================================================================
 // ⚙️  CONFIGURATION — MODIFIE CES VALEURS POUR TES DONNÉES
 // ================================================================
-const CONFIG = {
-  // Colle ici l'URL CSV de ta feuille "Objectifs" publiée depuis Google Sheets
-   urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
 
-  // URL CSV de ta feuille "Réalisations"
+const CONFIG = {
+
+   urlObjectifs:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=922990365&single=true&output=csv",
   urlRealisations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXYDt_i37gdvLQvymMUVohguQcnuEG1zBidrtJH_eH_eDAWKtquZbjRFsYzCv7n8OZ8zS5d8P9DiGM/pub?gid=116592735&single=true&output=csv",
 
-  // Si true : utilise les données de démo (pour tester sans Sheets)
   demoMode: false
 };
 // ================================================================
